@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Collection Report App</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090a0d;
+      --panel: #121419;
+      --panel-soft: #171a20;
+      --panel-strong: #1c2028;
+      --line: #2a2f3a;
+      --line-strong: #3a414d;
+      --text: #f5f1e8;
+      --muted: #a5acb8;
+      --subtle: #727b88;
+      --gold: #c6a15b;
+      --gold-soft: #ead39a;
+      --blue: #86a8d8;
+      --danger: #db7777;
+      --success: #92c99b;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(198, 161, 91, 0.14), transparent 34rem),
+        radial-gradient(circle at 88% 4%, rgba(134, 168, 216, 0.10), transparent 32rem),
+        linear-gradient(135deg, #08090c 0%, #101217 48%, #090a0d 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent 76%);
+      z-index: -1;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border: 1px solid rgba(198, 161, 91, 0.48);
+      border-radius: 18px;
+      color: var(--gold-soft);
+      background: linear-gradient(145deg, rgba(198, 161, 91, 0.22), rgba(255, 255, 255, 0.04));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 38px rgba(0, 0, 0, 0.24);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--gold-soft);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: clamp(2rem, 4vw, 4.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.055em;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: clamp(1.55rem, 2.6vw, 2.55rem);
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+
+    .name-input {
+      border: none !important;
+      background: transparent !important;
+      color: var(--text) !important;
+      font-weight: 800 !important;
+      font-size: 0.95rem !important;
+      letter-spacing: -0.015em !important;
+      padding: 0 !important;
+      outline: none !important;
+      width: 100% !important;
+      border-radius: 0 !important;
+      min-height: auto !important;
+      box-shadow: none !important;
+    }
+
+    .name-input:focus {
+      border-bottom: 1px solid rgba(198, 161, 91, 0.72) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .shop-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 240px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      color: var(--muted);
+      background: rgba(18, 20, 25, 0.72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .shop-chip strong {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .shop-chip span {
+      color: var(--subtle);
+      font-size: 0.8rem;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .step {
+      position: relative;
+      overflow: hidden;
+      padding: 13px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      color: var(--muted);
+      background: rgba(18, 20, 25, 0.72);
+      transition: border-color 220ms ease, background 220ms ease, color 220ms ease, transform 220ms ease;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: transparent;
+      transition: background 220ms ease;
+    }
+
+    .step.is-active {
+      border-color: rgba(198, 161, 91, 0.56);
+      color: var(--text);
+      background: rgba(28, 32, 40, 0.92);
+      transform: translateY(-1px);
+    }
+
+    .step.is-active::before {
+      background: var(--gold);
+    }
+
+    .step-number {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--gold-soft);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .step-title {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .page {
+      animation: pageIn 420ms ease both;
+    }
+
+    .page[hidden] {
+      display: none;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel {
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(18, 20, 25, 0.94), rgba(13, 15, 19, 0.96));
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+    }
+
+    .panel-inner {
+      padding: clamp(22px, 4vw, 38px);
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .section-copy {
+      max-width: 720px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .textarea-wrap {
+      margin-top: 28px;
+    }
+
+    label {
+      display: inline-flex;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: rgba(8, 10, 13, 0.74);
+      outline: none;
+      transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    textarea:focus,
+    input:focus,
+    select:focus {
+      border-color: rgba(198, 161, 91, 0.72);
+      background: rgba(10, 12, 16, 0.94);
+      box-shadow: 0 0 0 4px rgba(198, 161, 91, 0.12);
+    }
+
+    textarea:disabled,
+    input:disabled,
+    select:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    textarea {
+      min-height: 300px;
+      padding: 16px;
+      line-height: 1.55;
+      resize: vertical;
+    }
+
+    input,
+    select {
+      min-height: 46px;
+      padding: 0 13px;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.54;
+    }
+
+    .btn-primary {
+      color: #12100a;
+      background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+      box-shadow: 0 16px 34px rgba(198, 161, 91, 0.20);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: rgba(198, 161, 91, 0.42);
+      background: rgba(255, 255, 255, 0.085);
+    }
+
+    .btn-danger {
+      border: 1px solid rgba(219, 119, 119, 0.34);
+      color: #ffd4d4;
+      background: rgba(219, 119, 119, 0.10);
+    }
+
+    .input-error {
+      min-height: 22px;
+      margin: 12px 0 0;
+      color: #ffb8b8;
+      font-size: 0.92rem;
+    }
+
+    .guide-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px;
+      border: 1px solid rgba(198, 161, 91, 0.18);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(198, 161, 91, 0.10), rgba(255, 255, 255, 0.035));
+    }
+
+    .guide-card p {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .guide-list {
+      display: grid;
+      gap: 13px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .guide-list li {
+      position: relative;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .guide-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .page-head p {
+      max-width: 700px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .head-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .summary-item {
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--subtle);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .summary-value {
+      color: var(--text);
+      font-size: clamp(1.1rem, 2.5vw, 1.65rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .summary-value.gold {
+      color: var(--gold-soft);
+    }
+
+    .client-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    #clientRows {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-head,
+    .client-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.7fr) minmax(145px, 0.9fr) minmax(155px, 0.85fr) minmax(230px, 1.3fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .list-head {
+      padding: 0 16px 4px;
+      color: var(--subtle);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .client-row {
+      position: relative;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left-width: 4px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.045);
+      transition: transform 190ms ease, border-color 190ms ease, background 190ms ease, box-shadow 190ms ease;
+    }
+
+    .client-row:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.062);
+    }
+
+    .client-row.is-paid {
+      border-left-color: var(--gold);
+    }
+
+    .client-row.is-pending {
+      border-left-color: var(--blue);
+      background: linear-gradient(90deg, rgba(134, 168, 216, 0.08), rgba(255, 255, 255, 0.04));
+    }
+
+    .client-row.saved {
+      animation: savedPulse 620ms ease;
+    }
+
+    @keyframes savedPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(198, 161, 91, 0.0);
+      }
+      28% {
+        border-color: rgba(198, 161, 91, 0.80);
+        box-shadow: 0 0 0 5px rgba(198, 161, 91, 0.10);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(198, 161, 91, 0.0);
+      }
+    }
+
+    .client-cell {
+      min-width: 0;
+    }
+
+    .client-name-block {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 12px;
+      row-gap: 2px;
+      align-items: center;
+    }
+
+    .serial {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      grid-row: span 2;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 11px;
+      color: var(--gold-soft);
+      background: rgba(0, 0, 0, 0.18);
+      font-size: 0.82rem;
+      font-weight: 850;
+    }
+
+    .client-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+      letter-spacing: -0.015em;
+    }
+
+    .time-label {
+      overflow: hidden;
+      color: var(--subtle);
+      font-size: 0.79rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-label {
+      display: none;
+      color: var(--subtle);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .amount-input {
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .status-select option {
+      color: #111318;
+      background: #f6f1e5;
+    }
+
+    .pending-placeholder {
+      color: var(--subtle);
+      font-size: 0.88rem;
+    }
+
+    .pending-fields {
+      display: none;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 9px;
+    }
+
+    .client-row.is-pending .pending-fields {
+      display: grid;
+    }
+
+    .client-row.is-pending .pending-placeholder {
+      display: none;
+    }
+
+    .note-input {
+      min-height: 42px;
+      padding: 11px 12px;
+      resize: vertical;
+    }
+
+    .saved-indicator {
+      position: absolute;
+      right: 14px;
+      top: -10px;
+      padding: 4px 9px;
+      border: 1px solid rgba(146, 201, 155, 0.34);
+      border-radius: 999px;
+      color: #c9ffd0;
+      background: rgba(34, 72, 43, 0.82);
+      font-size: 0.72rem;
+      font-weight: 850;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .client-row.saved .saved-indicator {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .collection-footer {
+      position: sticky;
+      bottom: 16px;
+      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(198, 161, 91, 0.25);
+      border-radius: 22px;
+      background: rgba(16, 18, 23, 0.86);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+    }
+
+    .total-block span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--subtle);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .total-block strong {
+      color: var(--gold-soft);
+      font-size: clamp(1.5rem, 3vw, 2.3rem);
+      letter-spacing: -0.045em;
+    }
+
+    .lock-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid rgba(146, 201, 155, 0.28);
+      border-radius: 999px;
+      color: #cff6d4;
+      background: rgba(146, 201, 155, 0.09);
+      font-size: 0.82rem;
+      font-weight: 850;
+    }
+
+    .lock-badge[hidden] {
+      display: none;
+    }
+
+    .review-table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .review-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    .review-table th,
+    .review-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .review-table th {
+      color: var(--gold-soft);
+      background: rgba(255, 255, 255, 0.045);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .review-table td {
+      color: var(--muted);
+    }
+
+    .review-table strong {
+      color: var(--text);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+
+    .status-pill.paid {
+      color: #1a150b;
+      background: var(--gold-soft);
+    }
+
+    .status-pill.pending {
+      color: #dbeaff;
+      background: rgba(134, 168, 216, 0.18);
+      border: 1px solid rgba(134, 168, 216, 0.28);
+    }
+
+    .final-status {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(146, 201, 155, 0.25);
+      border-radius: 18px;
+      color: #d7f8db;
+      background: rgba(146, 201, 155, 0.08);
+      line-height: 1.55;
+    }
+
+    .final-status[hidden],
+    .btn[hidden] {
+      display: none;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 20;
+      max-width: min(380px, calc(100% - 44px));
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 16px;
+      color: var(--text);
+      background: rgba(18, 20, 25, 0.94);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(16px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.is-error {
+      border-color: rgba(219, 119, 119, 0.36);
+      color: #ffd4d4;
+    }
+
+    .collection-locked .client-row {
+      opacity: 0.82;
+    }
+
+    @media (max-width: 980px) {
+      .app-header,
+      .page-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .shop-chip {
+        min-width: 0;
+      }
+
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .list-head,
+      .client-row {
+        grid-template-columns: minmax(220px, 1.4fr) minmax(140px, 0.8fr) minmax(150px, 0.75fr);
+      }
+
+      .list-head span:last-child,
+      .pending-cell {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .brand-block {
+        align-items: flex-start;
+      }
+
+      .brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 15px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-inner {
+        padding: 20px;
+      }
+
+      .summary-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .head-actions,
+      .button-row {
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .list-head {
+        display: none;
+      }
+
+      .client-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .client-name-block {
+        align-items: start;
+      }
+
+      .client-name,
+      .time-label {
+        white-space: normal;
+      }
+
+      .mobile-label {
+        display: inline-flex;
+      }
+
+      .amount-cell,
+      .status-cell,
+      .pending-cell {
+        display: grid;
+        gap: 8px;
+      }
+
+      .collection-footer {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">DC</div>
+        <div>
+          <p class="eyebrow">Wholesale cloth payment desk</p>
+          <h1>Daily Collection</h1>
+        </div>
+      </div>
+      <aside class="shop-chip" aria-label="Shop information">
+        <strong>Jash Enterprises</strong>
+        <span>Professional payment collection report</span>
+      </aside>
+    </header>
+
+    <nav class="steps" aria-label="Application steps">
+      <div class="step is-active" data-step="setup">
+        <span class="step-number">Step 01</span>
+        <span class="step-title">Client list input</span>
+      </div>
+      <div class="step" data-step="collection">
+        <span class="step-number">Step 02</span>
+        <span class="step-title">Collection entry</span>
+      </div>
+      <div class="step" data-step="final">
+        <span class="step-number">Step 03</span>
+        <span class="step-title">Finalize report</span>
+      </div>
+    </nav>
+
+    <section class="page" id="setupPage" data-page="setup">
+      <div class="panel">
+        <div class="panel-inner">
+          <div>
+            <p class="eyebrow">Page 1</p>
+            <h2>Paste client names and create the collection sheet.</h2>
+            <p class="section-copy">Enter one client name per line. The app converts the list into editable collection rows, stores the clients in local JavaScript state, and prepares a clean daily report.</p>
+
+            <div class="textarea-wrap">
+              <label for="clientInput">Client names</label>
+              <textarea id="clientInput" data-editable placeholder="Aarav Textiles&#10;Mehta Fabrics&#10;Royal Suiting House&#10;Khan Cloth Depot"></textarea>
+              <p class="input-error" id="clientInputError" aria-live="polite"></p>
+              <div class="button-row">
+                <button class="btn btn-primary" id="generateListBtn" data-editable type="button">Generate List</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="collectionPage" data-page="collection" hidden>
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Page 2</p>
+              <h2>Enter payments as clients pay.</h2>
+              <p>Amounts are saved immediately in local state. The first time an amount is entered, the payment date and time are recorded automatically.</p>
+            </div>
+            <div class="head-actions">
+              <span class="lock-badge" id="lockedBadge" hidden>Inputs locked</span>
+              <button class="btn btn-secondary" id="backToSetupBtn" type="button">Edit Client List</button>
+              <button class="btn btn-primary" id="goToFinalBtn" type="button">Continue to Finalization</button>
+            </div>
+          </div>
+
+          <div class="summary-strip" aria-label="Collection summary">
+            <div class="summary-item">
+              <span class="summary-label">Clients</span>
+              <strong class="summary-value" id="clientCount">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Paid</span>
+              <strong class="summary-value" id="paidCount">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Pending</span>
+              <strong class="summary-value" id="pendingCount">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Received</span>
+              <strong class="summary-value gold" id="summaryTotal">INR 0.00</strong>
+            </div>
+          </div>
+
+          <div class="client-list" id="clientList" aria-live="polite">
+            <div class="list-head" aria-hidden="true">
+              <span>Client</span>
+              <span>Amount received</span>
+              <span>Status</span>
+              <span>Pending details</span>
+            </div>
+            <div id="clientRows"></div>
+          </div>
+
+          <div class="collection-footer">
+            <div class="total-block">
+              <span>Total amount received</span>
+              <strong id="grandTotal">INR 0.00</strong>
+            </div>
+            <button class="btn btn-primary" id="bottomFinalBtn" type="button">Review and End Collection</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="finalPage" data-page="final" hidden>
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Page 3</p>
+              <h2>Finalize and download the PDF report.</h2>
+              <p>Review the collection entries below. Ending the collection locks the form, sorts report entries by payment entry time, and downloads a professional PDF.</p>
+            </div>
+            <div class="head-actions">
+              <button class="btn btn-secondary" id="backToEntriesBtn" type="button">Back to Entries</button>
+              <button class="btn btn-primary" id="endCollectionBtn" type="button">End Collection</button>
+              <button class="btn btn-secondary" id="downloadAgainBtn" type="button" hidden>Download PDF Again</button>
+              <button class="btn btn-danger" id="startOverBtn" type="button" hidden>Start New Collection</button>
+            </div>
+          </div>
+
+          <div class="summary-strip" aria-label="Final summary">
+            <div class="summary-item">
+              <span class="summary-label">Report date</span>
+              <strong class="summary-value" id="reviewDate">-</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Total clients</span>
+              <strong class="summary-value" id="reviewClientCount">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Pending</span>
+              <strong class="summary-value" id="reviewPendingCount">0</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Total received</span>
+              <strong class="summary-value gold" id="reviewTotal">INR 0.00</strong>
+            </div>
+          </div>
+
+          <div class="review-table-wrap">
+            <table class="review-table">
+              <thead>
+                <tr>
+                  <th>Serial No.</th>
+                  <th>Client Name</th>
+                  <th>Amount Received</th>
+                  <th>Status</th>
+                  <th>Payment Time or Due Date</th>
+                </tr>
+              </thead>
+              <tbody id="reviewRows"></tbody>
+            </table>
+          </div>
+
+          <div class="final-status" id="finalStatus" hidden>
+            Collection closed. All entry inputs are locked and the PDF report has been downloaded.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Main application module. Keeps state local and avoids inline event handlers.
+    const CollectionApp = (() => {
+      const SHOP_NAME = "Jash Enterprises";
+
+      const state = {
+        clients: [],
+        activePage: "setup",
+        isLocked: false,
+        finalizedAt: null
+      };
+
+      const dom = {};
+      const pulseTimers = new Map();
+      let toastTimer = null;
+
+      function init() {
+        cacheDom();
+        bindEvents();
+        updateStepState();
+        updateSummary();
+      }
+
+      function cacheDom() {
+        dom.pages = {
+          setup: document.getElementById("setupPage"),
+          collection: document.getElementById("collectionPage"),
+          final: document.getElementById("finalPage")
+        };
+        dom.steps = Array.from(document.querySelectorAll(".step"));
+        dom.clientInput = document.getElementById("clientInput");
+        dom.clientInputError = document.getElementById("clientInputError");
+        dom.generateListBtn = document.getElementById("generateListBtn");
+        dom.backToSetupBtn = document.getElementById("backToSetupBtn");
+        dom.goToFinalBtn = document.getElementById("goToFinalBtn");
+        dom.bottomFinalBtn = document.getElementById("bottomFinalBtn");
+        dom.clientRows = document.getElementById("clientRows");
+        dom.clientCount = document.getElementById("clientCount");
+        dom.paidCount = document.getElementById("paidCount");
+        dom.pendingCount = document.getElementById("pendingCount");
+        dom.summaryTotal = document.getElementById("summaryTotal");
+        dom.grandTotal = document.getElementById("grandTotal");
+        dom.lockedBadge = document.getElementById("lockedBadge");
+        dom.backToEntriesBtn = document.getElementById("backToEntriesBtn");
+        dom.endCollectionBtn = document.getElementById("endCollectionBtn");
+        dom.downloadAgainBtn = document.getElementById("downloadAgainBtn");
+        dom.startOverBtn = document.getElementById("startOverBtn");
+        dom.reviewRows = document.getElementById("reviewRows");
+        dom.reviewDate = document.getElementById("reviewDate");
+        dom.reviewClientCount = document.getElementById("reviewClientCount");
+        dom.reviewPendingCount = document.getElementById("reviewPendingCount");
+        dom.reviewTotal = document.getElementById("reviewTotal");
+        dom.finalStatus = document.getElementById("finalStatus");
+        dom.toast = document.getElementById("toast");
+      }
+
+      function bindEvents() {
+        dom.generateListBtn.addEventListener("click", handleGenerateList);
+        dom.clientInput.addEventListener("keydown", handleClientInputShortcut);
+        dom.clientRows.addEventListener("input", handleRowInput);
+        dom.clientRows.addEventListener("change", handleRowChange);
+        dom.clientRows.addEventListener("keydown", handleRowKeydown);
+        dom.backToSetupBtn.addEventListener("click", () => showPage("setup"));
+        dom.goToFinalBtn.addEventListener("click", () => showPage("final"));
+        dom.bottomFinalBtn.addEventListener("click", () => showPage("final"));
+        dom.backToEntriesBtn.addEventListener("click", () => showPage("collection"));
+        dom.endCollectionBtn.addEventListener("click", handleEndCollection);
+        dom.downloadAgainBtn.addEventListener("click", generatePDF);
+        dom.startOverBtn.addEventListener("click", () => window.location.reload());
+      }
+
+      function handleClientInputShortcut(event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          handleGenerateList();
+        }
+      }
+
+
+
+      function handleGenerateList() {
+        const names = parseClientNames(dom.clientInput.value);
+
+        if (!names.length) {
+          dom.clientInputError.textContent = "Please enter at least one client name.";
+          dom.clientInput.focus();
+          return;
+        }
+
+        state.clients = names.map((name, index) => ({
+          id: createId(index),
+          order: index,
+          name,
+          amount: "",
+          status: "Paid",
+          dueDate: "",
+          note: "",
+          entryTime: null
+        }));
+        state.isLocked = false;
+        state.finalizedAt = null;
+        dom.clientInputError.textContent = "";
+        dom.finalStatus.hidden = true;
+        dom.downloadAgainBtn.hidden = true;
+        dom.startOverBtn.hidden = true;
+        dom.endCollectionBtn.disabled = false;
+        dom.endCollectionBtn.textContent = "End Collection";
+
+        renderClientRows();
+        setLocked(false);
+        updateSummary();
+        showPage("collection");
+        showToast(`${names.length} clients added to collection sheet.`);
+      }
+
+      function parseClientNames(value) {
+        const seen = new Set();
+        return value
+          .split(/\r?\n/)
+          .map((name) => name.trim())
+          .filter(Boolean)
+          .filter((name) => {
+            const key = name.toLowerCase();
+            if (seen.has(key)) {
+              return false;
+            }
+            seen.add(key);
+            return true;
+          });
+      }
+
+      function createId(index) {
+        return `client-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 9)}`;
+      }
+
+      function showPage(pageName) {
+        state.activePage = pageName;
+        Object.entries(dom.pages).forEach(([name, element]) => {
+          element.hidden = name !== pageName;
+        });
+
+        if (pageName === "final") {
+          renderReview();
+        }
+
+        updateStepState();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function updateStepState() {
+        dom.steps.forEach((step) => {
+          step.classList.toggle("is-active", step.dataset.step === state.activePage);
+        });
+      }
+
+      function renderClientRows() {
+        dom.clientRows.innerHTML = state.clients.map((client, index) => createClientRow(client, index)).join("");
+      }
+
+      function createClientRow(client, index) {
+        const isPending = client.status === "Pending";
+        const disabled = state.isLocked ? "disabled" : "";
+        const statusClass = isPending ? "is-pending" : "is-paid";
+        const paidSelected = client.status === "Paid" ? "selected" : "";
+        const pendingSelected = client.status === "Pending" ? "selected" : "";
+
+        return `
+          <div class="client-row ${statusClass}" data-id="${client.id}">
+            <span class="saved-indicator">Saved</span>
+            <div class="client-cell client-name-block">
+              <span class="serial">${String(index + 1).padStart(2, "0")}</span>
+              <strong class="client-name" title="${escapeHTML(client.name)}">${escapeHTML(client.name)}</strong>
+              <span class="time-label">${getEntryLabel(client)}</span>
+            </div>
+
+            <div class="client-cell amount-cell">
+              <span class="mobile-label">Amount received</span>
+              <input class="amount-input" data-editable inputmode="decimal" min="0" step="0.01" type="number" placeholder="0.00" value="${escapeHTML(client.amount)}" ${disabled}>
+            </div>
+
+            <div class="client-cell status-cell">
+              <span class="mobile-label">Status</span>
+              <select class="status-select" data-editable ${disabled}>
+                <option value="Paid" ${paidSelected}>Paid</option>
+                <option value="Pending" ${pendingSelected}>Pending (Pay Later)</option>
+              </select>
+            </div>
+
+            <div class="client-cell pending-cell">
+              <span class="mobile-label">Pending details</span>
+              <span class="pending-placeholder">No pending follow-up required</span>
+              <div class="pending-fields">
+                <input class="due-date-input" data-editable type="date" value="${escapeHTML(client.dueDate)}" ${disabled}>
+                <textarea class="note-input" data-editable maxlength="140" placeholder="Optional note" ${disabled}>${escapeHTML(client.note)}</textarea>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function handleRowInput(event) {
+        if (state.isLocked) {
+          return;
+        }
+
+        const target = event.target;
+        const row = target.closest(".client-row");
+        if (!row) {
+          return;
+        }
+
+        const client = getClientById(row.dataset.id);
+        if (!client) {
+          return;
+        }
+
+        if (target.classList.contains("amount-input")) {
+          client.amount = target.value;
+          updateEntryTime(client);
+          updateRowComputed(row, client);
+          updateSummary();
+          if (target.value.trim() !== "") {
+            queueSavedAnimation(row);
+          }
+        }
+
+        if (target.classList.contains("due-date-input")) {
+          client.dueDate = target.value;
+        }
+
+        if (target.classList.contains("note-input")) {
+          client.note = target.value;
+        }
+      }
+
+      function handleRowChange(event) {
+        if (state.isLocked) {
+          return;
+        }
+
+        const target = event.target;
+        const row = target.closest(".client-row");
+        if (!row) {
+          return;
+        }
+
+        const client = getClientById(row.dataset.id);
+        if (!client) {
+          return;
+        }
+
+        if (target.classList.contains("status-select")) {
+          client.status = target.value;
+          updateRowComputed(row, client);
+          updateSummary();
+          if (client.status === "Pending") {
+            const dueDateInput = row.querySelector(".due-date-input");
+            if (dueDateInput) {
+              dueDateInput.focus();
+            }
+          }
+        }
+
+        if (target.classList.contains("amount-input")) {
+          if (Number(target.value) < 0) {
+            target.value = "0";
+            client.amount = "0";
+          }
+          updateEntryTime(client);
+          updateRowComputed(row, client);
+          updateSummary();
+          if (target.value.trim() !== "") {
+            moveToNextClient(row);
+          }
+        }
+
+        if (target.classList.contains("due-date-input")) {
+          client.dueDate = target.value;
+        }
+      }
+
+      function handleRowKeydown(event) {
+        if (state.isLocked) {
+          return;
+        }
+
+        const target = event.target;
+        if (!target.classList.contains("amount-input") || event.key !== "Enter") {
+          return;
+        }
+
+        const row = target.closest(".client-row");
+        if (!row) {
+          return;
+        }
+
+        event.preventDefault();
+        if (target.value.trim() !== "") {
+          moveToNextClient(row);
+        }
+      }
+
+      function updateEntryTime(client) {
+        const hasAmount = String(client.amount).trim() !== "";
+        if (hasAmount && !client.entryTime) {
+          client.entryTime = new Date().toISOString();
+        }
+        if (!hasAmount) {
+          client.entryTime = null;
+        }
+      }
+
+      function updateRowComputed(row, client) {
+        row.classList.toggle("is-paid", client.status === "Paid");
+        row.classList.toggle("is-pending", client.status === "Pending");
+        const timeLabel = row.querySelector(".time-label");
+        if (timeLabel) {
+          timeLabel.textContent = getEntryLabel(client);
+        }
+      }
+
+      function queueSavedAnimation(row) {
+        const id = row.dataset.id;
+        clearTimeout(pulseTimers.get(id));
+        pulseTimers.set(id, setTimeout(() => {
+          row.classList.remove("saved");
+          void row.offsetWidth;
+          row.classList.add("saved");
+          setTimeout(() => row.classList.remove("saved"), 680);
+        }, 180));
+      }
+
+      function moveToNextClient(row) {
+        const rows = Array.from(dom.clientRows.querySelectorAll(".client-row"));
+        const currentIndex = rows.indexOf(row);
+        const nextRow = rows[currentIndex + 1];
+        if (!nextRow) {
+          return;
+        }
+
+        nextRow.scrollIntoView({ behavior: "smooth", block: "center" });
+        const nextInput = nextRow.querySelector(".amount-input");
+        if (nextInput && !state.isLocked) {
+          setTimeout(() => nextInput.focus({ preventScroll: true }), 240);
+        }
+      }
+
+      function getClientById(id) {
+        return state.clients.find((client) => client.id === id);
+      }
+
+      function updateSummary() {
+        const total = getTotalReceived();
+        const paid = state.clients.filter((client) => client.status === "Paid").length;
+        const pending = state.clients.filter((client) => client.status === "Pending").length;
+
+        dom.clientCount.textContent = String(state.clients.length);
+        dom.paidCount.textContent = String(paid);
+        dom.pendingCount.textContent = String(pending);
+        dom.summaryTotal.textContent = formatCurrency(total);
+        dom.grandTotal.textContent = formatCurrency(total);
+      }
+
+      function renderReview() {
+        const sortedClients = getSortedClients();
+        const pending = state.clients.filter((client) => client.status === "Pending").length;
+
+        dom.reviewDate.textContent = formatDateOnly(new Date());
+        dom.reviewClientCount.textContent = String(state.clients.length);
+        dom.reviewPendingCount.textContent = String(pending);
+        dom.reviewTotal.textContent = formatCurrency(getTotalReceived());
+        dom.reviewRows.innerHTML = sortedClients.map((client, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td><strong>${escapeHTML(client.name)}</strong></td>
+            <td>${formatCurrency(getAmountNumber(client.amount))}</td>
+            <td><span class="status-pill ${client.status.toLowerCase()}">${client.status}</span></td>
+            <td>${escapeHTML(getPaymentSlot(client)).replace(/\n/g, "<br>")}</td>
+          </tr>
+        `).join("");
+      }
+
+      function handleEndCollection() {
+        if (!state.clients.length) {
+          showToast("Please create a client list first.", "error");
+          return;
+        }
+
+        state.finalizedAt = new Date().toISOString();
+        renderReview();
+        setLocked(true);
+        generatePDF();
+
+        dom.endCollectionBtn.disabled = true;
+        dom.endCollectionBtn.textContent = "Collection Closed";
+        dom.downloadAgainBtn.hidden = false;
+        dom.startOverBtn.hidden = false;
+        dom.finalStatus.hidden = false;
+        showToast("Collection locked and PDF downloaded.");
+      }
+
+      function setLocked(locked) {
+        state.isLocked = locked;
+        document.body.classList.toggle("collection-locked", locked);
+        dom.lockedBadge.hidden = !locked;
+        document.querySelectorAll("[data-editable]").forEach((element) => {
+          element.disabled = locked;
+        });
+      }
+
+      function generatePDF() {
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          showToast("jsPDF could not be loaded. Please check the CDN connection.", "error");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+        const reportDate = state.finalizedAt ? new Date(state.finalizedAt) : new Date();
+        const page = {
+          width: doc.internal.pageSize.getWidth(),
+          height: doc.internal.pageSize.getHeight(),
+          margin: 14
+        };
+        const columns = [
+          { label: "Serial No.", width: 17 },
+          { label: "Client Name", width: 55 },
+          { label: "Amount Received", width: 32 },
+          { label: "Status", width: 26 },
+          { label: "Payment Time OR Due Date", width: 52 }
+        ];
+
+        drawPdfHeader(doc, page, reportDate);
+        let y = 52;
+        y = drawTableHeader(doc, page, columns, y);
+
+        getSortedClients().forEach((client, index) => {
+          const rowData = [
+            String(index + 1),
+            client.name,
+            formatCurrency(getAmountNumber(client.amount)),
+            client.status,
+            getPaymentSlot(client)
+          ];
+          const wrapped = wrapPdfRow(doc, columns, rowData);
+          const rowHeight = Math.max(10, Math.max(...wrapped.map((lines) => lines.length)) * 4.8 + 5);
+
+          if (y + rowHeight > page.height - 34) {
+            doc.addPage();
+            drawPdfContinuationHeader(doc, page, reportDate);
+            y = drawTableHeader(doc, page, columns, 28);
+          }
+
+          drawPdfRow(doc, page, columns, wrapped, y, rowHeight, index);
+          y += rowHeight;
+        });
+
+        drawPdfFooter(doc, page, y, getTotalReceived());
+        addPdfPageNumbers(doc, page);
+
+        const fileDate = toFileDate(reportDate);
+        doc.save(`Daily_Collection_Report_${fileDate}.pdf`);
+      }
+
+      function drawPdfHeader(doc, page, reportDate) {
+        doc.setFillColor(16, 18, 23);
+        doc.rect(0, 0, page.width, 40, "F");
+        doc.setFillColor(198, 161, 91);
+        doc.rect(0, 0, 4, 40, "F");
+
+        doc.setTextColor(245, 241, 232);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text("Daily Collection Report", page.margin, 16);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(190, 194, 202);
+        doc.text(`Shop Name: ${SHOP_NAME}`, page.margin, 24);
+        doc.text(`Current Date: ${formatDateTime(reportDate)}`, page.margin, 31);
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(234, 211, 154);
+        doc.text(formatCurrency(getTotalReceived()), page.width - page.margin, 16, { align: "right" });
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(160, 166, 176);
+        doc.text("Total Amount Received", page.width - page.margin, 23, { align: "right" });
+      }
+
+      function drawPdfContinuationHeader(doc, page, reportDate) {
+        doc.setTextColor(36, 39, 45);
+        doc.setDrawColor(198, 161, 91);
+        doc.line(page.margin, 18, page.width - page.margin, 18);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Daily Collection Report", page.margin, 14);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text(formatDateTime(reportDate), page.width - page.margin, 14, { align: "right" });
+      }
+
+      function drawTableHeader(doc, page, columns, y) {
+        let x = page.margin;
+        doc.setFillColor(31, 35, 43);
+        doc.rect(page.margin, y, totalColumnWidth(columns), 10, "F");
+        doc.setTextColor(234, 211, 154);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        columns.forEach((column) => {
+          doc.text(column.label, x + 2, y + 6.5);
+          x += column.width;
+        });
+        return y + 10;
+      }
+
+      function wrapPdfRow(doc, columns, rowData) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.4);
+        return rowData.map((value, index) => doc.splitTextToSize(String(value || "-"), columns[index].width - 4));
+      }
+
+      function drawPdfRow(doc, page, columns, wrapped, y, rowHeight, rowIndex) {
+        let x = page.margin;
+        const fill = rowIndex % 2 === 0 ? 250 : 246;
+        doc.setFillColor(fill, fill, fill);
+        doc.rect(page.margin, y, totalColumnWidth(columns), rowHeight, "F");
+        doc.setDrawColor(222, 225, 230);
+        doc.setLineWidth(0.2);
+        doc.rect(page.margin, y, totalColumnWidth(columns), rowHeight);
+
+        columns.forEach((column, index) => {
+          if (index > 0) {
+            doc.line(x, y, x, y + rowHeight);
+          }
+          doc.setTextColor(index === 3 && wrapped[index][0] === "Pending" ? 76 : 35, 39, 45);
+          doc.setFont("helvetica", index === 1 || index === 2 ? "bold" : "normal");
+          doc.setFontSize(8.4);
+          doc.text(wrapped[index], x + 2, y + 5.8);
+          x += column.width;
+        });
+      }
+
+      function drawPdfFooter(doc, page, y, total) {
+        const footerHeight = 18;
+        if (y + footerHeight + 34 > page.height) {
+          doc.addPage();
+          y = 24;
+        } else {
+          y += 8;
+        }
+
+        const tableWidth = page.width - page.margin * 2;
+        doc.setFillColor(234, 211, 154);
+        doc.roundedRect(page.margin, y, tableWidth, footerHeight, 2, 2, "F");
+        doc.setTextColor(19, 17, 12);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text("Total Amount Received", page.margin + 4, y + 11.5);
+        doc.text(formatCurrency(total), page.width - page.margin - 4, y + 11.5, { align: "right" });
+
+        const signatureY = y + footerHeight + 24;
+        doc.setDrawColor(80, 84, 92);
+        doc.line(page.width - 78, signatureY, page.width - page.margin, signatureY);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(90, 94, 102);
+        doc.text("Authorized Signature", page.width - 46, signatureY + 6, { align: "center" });
+      }
+
+      function addPdfPageNumbers(doc, page) {
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+          doc.setPage(pageNumber);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(120, 126, 136);
+          doc.text(`Page ${pageNumber} of ${pageCount}`, page.width - page.margin, page.height - 8, { align: "right" });
+        }
+      }
+
+      function totalColumnWidth(columns) {
+        return columns.reduce((sum, column) => sum + column.width, 0);
+      }
+
+      function getSortedClients() {
+        return [...state.clients].sort((a, b) => {
+          const aTime = a.entryTime ? new Date(a.entryTime).getTime() : Number.MAX_SAFE_INTEGER;
+          const bTime = b.entryTime ? new Date(b.entryTime).getTime() : Number.MAX_SAFE_INTEGER;
+          if (aTime === bTime) {
+            return a.order - b.order;
+          }
+          return aTime - bTime;
+        });
+      }
+
+      function getPaymentSlot(client) {
+        if (client.status === "Pending") {
+          const dueDate = client.dueDate ? formatDateOnly(new Date(`${client.dueDate}T00:00:00`)) : "Due date not selected";
+          return client.note.trim() ? `${dueDate}\nNote: ${client.note.trim()}` : dueDate;
+        }
+
+        return client.entryTime ? formatDateTime(new Date(client.entryTime)) : "Payment time not recorded";
+      }
+
+      function getEntryLabel(client) {
+        if (client.entryTime) {
+          return `Entered ${formatDateTimeShort(new Date(client.entryTime))}`;
+        }
+        if (client.status === "Pending") {
+          return "Awaiting collection";
+        }
+        return "No amount entered";
+      }
+
+      function getTotalReceived() {
+        return state.clients.reduce((sum, client) => sum + getAmountNumber(client.amount), 0);
+      }
+
+      function getAmountNumber(value) {
+        const amount = Number.parseFloat(value);
+        return Number.isFinite(amount) && amount > 0 ? amount : 0;
+      }
+
+      function formatCurrency(value) {
+        return `INR ${new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(value)}`;
+      }
+
+      function formatDateOnly(date) {
+        return new Intl.DateTimeFormat("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        }).format(date);
+      }
+
+      function formatDateTime(date) {
+        return new Intl.DateTimeFormat("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        }).format(date);
+      }
+
+      function formatDateTimeShort(date) {
+        return new Intl.DateTimeFormat("en-IN", {
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        }).format(date);
+      }
+
+      function toFileDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function escapeHTML(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function showToast(message, type = "success") {
+        clearTimeout(toastTimer);
+        dom.toast.textContent = message;
+        dom.toast.classList.toggle("is-error", type === "error");
+        dom.toast.classList.add("is-visible");
+        toastTimer = setTimeout(() => {
+          dom.toast.classList.remove("is-visible");
+        }, 3200);
+      }
+
+      return { init };
+    })();
+
+    document.addEventListener("DOMContentLoaded", CollectionApp.init);
+  </script>
+</body>
+</html>
